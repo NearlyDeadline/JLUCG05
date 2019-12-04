@@ -176,10 +176,17 @@ void CJLUCG05View::OnBspline()
 
 void CJLUCG05View::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	points[pointsCount] = point;
-	pointsCount = (pointsCount + 1) % POINTS_SIZE;
-	if (!pointsFilled && pointsCount == 0)
-		pointsFilled = true;
+	if (pointsFilled) {
+		for (int i = 0; i < CJLUCG05View::POINTS_SIZE - 1; i++) {
+			points[i] = points[i + 1];
+		}
+		points[CJLUCG05View::POINTS_SIZE - 1] = point;
+	}
+	else {
+		points[pointsCount++] = point;
+		if (pointsCount == 4)
+			pointsFilled = true;
+	}
 	CDC* pDC = this->GetDC();
 	pDC->SetPixel(point, PolygonPen.lopnColor);
 	ReleaseDC(pDC);
@@ -205,13 +212,13 @@ void CJLUCG05View::Hermite(CDC* pDC, int density)
 	PjD.x = points[3].x - points[2].x;
 	PjD.y = points[3].y - points[2].y;
 	int x[4]; //x[0] * u ^ 3 + x[1] * u ^ 2 + x[2] * u + x[3]
-	x[0] = 2 * points[0].x - 2 * points[3].x + 1 * PiD.x + 1 * PjD.x;
-	x[1] = -3 * points[0].x + 3 * points[3].x - 2 * PiD.x - 1 * PjD.x;
+	x[0] = 2 * points[0].x - 2 * points[2].x + 1 * PiD.x + 1 * PjD.x;
+	x[1] = -3 * points[0].x + 3 * points[2].x - 2 * PiD.x - 1 * PjD.x;
 	x[2] = PiD.x;
 	x[3] = points[0].x;
 	int y[4];
-	y[0] = 2 * points[0].y - 2 * points[3].y + 1 * PiD.y + 1 * PjD.y;
-	y[1] = -3 * points[0].y + 3 * points[3].y - 2 * PiD.y - 1 * PjD.y;
+	y[0] = 2 * points[0].y - 2 * points[2].y + 1 * PiD.y + 1 * PjD.y;
+	y[1] = -3 * points[0].y + 3 * points[2].y - 2 * PiD.y - 1 * PjD.y;
 	y[2] = PiD.y;
 	y[3] = points[0].y;
 	double i = 0.0;
